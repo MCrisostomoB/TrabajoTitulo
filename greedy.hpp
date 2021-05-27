@@ -1,0 +1,2 @@
+vector<vector<Bloque>> GreedySolution(vector<vector<int>> &horario,vector<vector<int>> &conflicts ,vector<vector<int>> preferences  ,vector<vector<Bloque>> dbloques ,int &totalconflictos,vector<Charlas> charlas ,vector<RPAC> rpac ,vector<vector<int>> rtcc,int sessions,int people,int talks,int days);
+vector<vector<Bloque>> GreedySchedule(vector<vector<int>> &horario,vector<vector<int>> preferences,vector<vector<Bloque>> dbloques,int sessions,int people,int days,vector<RPAC> rpac,int pseed);
