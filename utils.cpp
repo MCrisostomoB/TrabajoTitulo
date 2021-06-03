@@ -196,8 +196,22 @@ int ConflictCount(vector<vector<int>> conflicts, vector<int> talks){
 	for(int i = 0 ; (unsigned)i<talks.size();i++){
 		for(int j = i ; (unsigned)j<talks.size();j++){
 			if(talks[i] != talks[j]){
-				// cout<<"charla 1 : "<< talks[i] << " charla 2: "<<talks[j]<<endl;
+				// cout<<"COMB 1 : "<< conflicts[talks[i]][talks[j]] << " comb 2: "<<conflicts[talks[j]][talks[i]]<<endl;
 				total += conflicts[talks[i]][talks[j]];
+			}
+		}
+	}
+	return total;
+}
+int ConflictCountBlock(vector<vector<int>> conflicts, vector<vector<int>> talks){
+	int total = 0 ;
+	for( int k = 0 ; k<talks.size();k++){
+		for(int i = 0 ; (unsigned)i<talks[k].size();i++){
+			for(int j = i ; (unsigned)j<talks[k].size();j++){
+				if(talks[i] != talks[j]){
+					// cout<<"COMB 1 : "<< conflicts[talks[i]][talks[j]] << " comb 2: "<<conflicts[talks[j]][talks[i]]<<endl;
+					total += conflicts[talks[k][i]][talks[k][j]];
+				}
 			}
 		}
 	}

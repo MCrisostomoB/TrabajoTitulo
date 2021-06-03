@@ -50,6 +50,7 @@ int main(int argc, char** argv){
 	horario.resize(talks/sessions);
 	srand(pseed);
 
+	std::cout << "inicio" << '\n';
     j = 0;
 	while(j!= people){
 		getline(file,line);
@@ -139,7 +140,7 @@ int main(int argc, char** argv){
 	// 	}
 	// }
 	int totalconflictos = 0 ;
-	auto start = chrono::high_resolution_clock::now();	
+	auto start = chrono::high_resolution_clock::now();
     dbloques = GreedySolution(horario,conflicts,preferences,dbloques ,totalconflictos,charlas ,rpac ,rtcc,sessions,people,talks,days);
 	// cout<< "total conflictos contados : "<< totalconflictos<<endl;
 	auto stop = chrono::high_resolution_clock::now();
@@ -153,7 +154,7 @@ int main(int argc, char** argv){
 	for(int i = 0; i<pob ; i++){
 		Gen ngen;
 		// cout<< i <<endl;
-		ngen.horario= GreedySchedule(horario,preferences,dbloques, sessions, people, days,rpac,pseed);
+		ngen.horario= GreedySchedule(horario,preferences,dbloques, sessions, people, days,rpac,pseed,conflicts);
 		// for (i= 0; i<days;i++){
 		// 	cout << "Dia: "<<i << endl;
 		// 	for(int j = 0 ; (unsigned)j<ngen.horario[i].size();j++){
@@ -186,11 +187,17 @@ int main(int argc, char** argv){
 	for(int i = 0 ; i<days; i++){
 		lbloques.push_back(poblacion[0].horario[i].size());
 	}
+
 	// for(int i = 0 ;(unsigned)i<horario.size();i++){
 	// 	for(int j = 0 ; (unsigned)j<horario[i].size();j++){
 	// 		cout<<horario[i][j]<<"|";
 	// 	}
 	// 	cout<<endl;
+	// }
+
+	// cout<< "conflictos originales"<<endl;
+	// for(int i = 0 ; i<pob ; i++){
+	// 	cout << poblacion[i].conflictos << endl;
 	// }
 	cout << "inicio Genetico"<< endl;
 	int gen = 1;
@@ -214,7 +221,7 @@ int main(int argc, char** argv){
 		}
 		for(int i = 0 ; i < elitism ; i++){
 			temppob.push_back(poblacion[i]);
-			
+
 		}
 		// cout << "Elitismo hecho"<< endl;
 		// cout << "Horario Formado" << endl;
@@ -321,19 +328,20 @@ int main(int argc, char** argv){
 					faltantes.push_back(ind);
 				}
 				child1.hops = totalblockhops1 ;
-				// child1.conflictos = totalconflictos;
+				child1.conflictos = 0;
 				for(int i = 0 ; i<days;i++){
 					for(int j = 0; (unsigned)j<child1.horario[i].size();j++){
 						// cout<< "bloque conf : "<< child1.horario[i][j].totalconfs <<endl;
 						child1.conflictos+= child1.horario[i][j].totalconfs;
 					}
 				}
+				// cout<<"cantidad de conflictos sumados 1 " << child1.conflictos<< endl;
 				// child1.violaciones = 0;
 				int viol = 0;
 				// cout<<faltantes.size()<<endl;
-				while(repeated.size()!= 0){
+				while(repeated.size()!= 0){                           
 					int fcount = ConflictCount(conflicts,child1.horario[repeated[0].day][repeated[0].block].charlas[repeated[0].ts]);
-					child1.horario[repeated[0].day][repeated[0].block].totalconfs -=fcount; 
+					child1.horario[repeated[0].day][repeated[0].block].totalconfs -=fcount;
 					child1.conflictos -= fcount;
 					child1.horario[repeated[0].day][repeated[0].block].charlas[repeated[0].ts][repeated[0].s] =faltantes[0];
 					// viol += constcounter(child1.horario[repeated[0].day][repeated[0].block].charlas[repeated[0].ts],sessions,repeated[0].day,repeated[0].block,faltantes[0],rpac, rtcc);
@@ -343,6 +351,7 @@ int main(int argc, char** argv){
 					faltantes.erase(faltantes.begin());
 					repeated.erase(repeated.begin());
 				}
+				// cout<<"cantidad de conflictos despues de repeated 1 " << child1.conflictos<< endl;
 				// child1.violaciones = viol*peso;
 				// cout << "child viol : "<< child1.violaciones << endl;
 				child1.costo = child1.conflictos + child1.hops ;
@@ -379,12 +388,14 @@ int main(int argc, char** argv){
 					it = find_if(next(it), contcharlas.end(), [](int i){return i == 0;});
 					faltantes.push_back(ind);
 				}
+				child2.conflictos = 0 ;
 				child2.hops = totalblockhops2 ;
 				for(int i = 0 ; i<days;i++){
 					for(int j = 0; (unsigned)j<child2.horario[i].size();j++){
 						child2.conflictos+= child2.horario[i][j].totalconfs;
 					}
 				}
+				// cout<<"cantidad de conflictos sumados 2 " << child2.conflictos<< endl;
 				// child2.conflictos = totalconflictos;
 				// child2.violaciones = 0;
 				// cout << "antes de repeated 2 "<<repeated.size()<< endl;
@@ -403,7 +414,9 @@ int main(int argc, char** argv){
 					faltantes.erase(faltantes.begin());
 					repeated.erase(repeated.begin());
 					// cout<< "violaciones: "<< viol<<endl;
+					// cout<<"adentro"<<endl;
 				}
+				// cout<<"cantidad de conflictos despues de repeated 2 " << child2.conflictos<< endl;
 				// cout << "conflictos child 2 : " << child2.conflictos << endl;
 				// cout<<viol<<endl;
 				// child2.violaciones = viol*peso;
@@ -432,6 +445,10 @@ int main(int argc, char** argv){
 				}
 			}
 		}
+		// cout<< "conflictos poblacion generada"<< endl;
+		// for( int i = 0; i<pob; i++){
+		// 	cout << temppob[i].conflictos<<endl;
+		// }
 		// cout<< "Cantidad de hijos infactibles: "<< infactibles << endl;
 		// cout << "Mutacion"<<endl;
 
@@ -463,25 +480,42 @@ int main(int argc, char** argv){
 				int rts = rand()%temppob[i].horario[rday][rb].bsize;
 				// cout<<"rday: " <<rday<< endl;
 				// for(int j = 0 ;(unsigned)j<temppob[i].horario[0].size();j++){
-				// 	cout<<"hops en el bloque: "<< temppob[i].horario[0][j].totaljumps<<endl; 
+				// 	cout<<"hops en el bloque: "<< temppob[i].horario[0][j].totaljumps<<endl;
 				// }
 				// cout << "hops totales contados: "<< temppob[i].hops<<endl;
 				temppob[i].hops -= temppob[i].horario[rday][rb].totaljumps;
+				int rday2 = rand()%days;
+				int rb2 = rand()%temppob[i].horario[rday2].size();
+				int rts2 = rand()%temppob[i].horario[rday2][rb2].bsize;
 				if(mode == 1){
-					int rday2 = rand()%days;
-					int rb2 = rand()%temppob[i].horario[rday2].size();
-					int rts2 = rand()%temppob[i].horario[rday2][rb2].bsize;
 					int rs1 = rand()%sessions;
 					int rs2 = rand()%sessions;
 					int tempch = temppob[i].horario[rday][rb].charlas[rts][rs1];
-					// cout<< "dia: "<<rday2 <<" bloque: "<<rb2 <<" timeslot : "<< rts2 << endl;
+					// cout<<"dia1: "<<rday<< " dia2: "<<rday2 <<" bloque1: "<<rb<<" bloque2: "<<rb2 <<" timeslot1 : "<< rts<<" timeslot2 : "<< rts2 <<" session1: "<<rs1 <<" session2: "<<rs2 << endl;
 					// cout<< "conflictos antes : "<< temppob[i].conflictos << endl;
 					// cout << "conflictos contados1 : " << ConflictCount(conflicts,temppob[i].horario[rday][rb].charlas[rts])<< endl;
 					// cout << "contando conflictos"<< endl;
 					int fcount = ConflictCount(conflicts,temppob[i].horario[rday][rb].charlas[rts]);
+					// cout << "antes de los fcounts "<< temppob[i].conflictos <<endl;
+					// if(temppob[i].conflictos == 3 ){
+					// 	for (int l= 0; l<days;l++){
+					// 		std::cout << "Dia: "<<i << '\n';
+					// 		for(int j = 0 ; (unsigned)j<temppob[i].horario[l].size();j++){
+					// 			std::cout << "Bloque: "<<temppob[i].horario[l][j].start+1 <<"-"<<temppob[i].horario[l][j].finish+1 <<'\n';
+					// 			for(int k = 0; k<temppob[i].horario[l][j].bsize;k++){
+					// 				for(int s = 0; s<sessions ; s++){
+					// 					std::cout << temppob[i].horario[l][j].charlas[k][s]<<'\t';
+					// 				}
+					// 					std::cout << "|\n";
+					// 			}
+					// 			std::cout  << "------------------------------\n";
+					// 		}
+					// 	}
+					// }
 					temppob[i].horario[rday][rb].totalconfs -= fcount;
 					temppob[i].conflictos -= fcount;
 					// cout << "conflictos restados"<< endl;
+					// cout << "fcount 1 "<< fcount << endl;
 					if(!(rday == rday2 && rb2 == rb && rts == rts2)){
 						// cout<< "dia: "<<rday2 <<" bloque: "<<rb2 <<" timeslot : "<< rts2 << endl;
 						// cout << " chequeo: "<< temppob[i].horario[rday2][rb2].charlas[1][0] <<endl;
@@ -490,10 +524,13 @@ int main(int argc, char** argv){
 						// cout << "conflictos contados2 : " << ConflictCount(conflicts,temppob[i].horario[rday2][rb2].charlas[rts2])<< endl;
 						temppob[i].conflictos -= fcount;
 						temppob[i].horario[rday2][rb2].totalconfs-= fcount;
+						// cout << "fcount 2 "<< fcount << endl;
 					}
 					// cout << "pasado if "<< endl;
+					// cout << " antes : " << temppob[i].horario[rday][rb].charlas[rts][rs1] <<" "<< temppob[i].horario[rday2][rb2].charlas[rts2][rs2]<<" "<<tempch<< endl;
 					temppob[i].horario[rday][rb].charlas[rts][rs1] = temppob[i].horario[rday2][rb2].charlas[rts2][rs2];
 					temppob[i].horario[rday2][rb2].charlas[rts2][rs2] = tempch;
+					// cout << " despues : " << temppob[i].horario[rday][rb].charlas[rts][rs1] <<" "<< temppob[i].horario[rday2][rb2].charlas[rts2][rs2]<<" "<<tempch<< endl;
 					// cout<<"antes:"<< temppob[i].hops<< endl;
 					// cout<< "dia: "<<rday2 <<" bloque: "<<rb2 <<endl;
 					// cout<< "bloque: "<< temppob[i].horario[rday2][rb2].totaljumps <<endl;
@@ -511,6 +548,7 @@ int main(int argc, char** argv){
 					fcount = ConflictCount(conflicts,temppob[i].horario[rday][rb].charlas[rts]);
 					temppob[i].conflictos += fcount;
 					temppob[i].horario[rday][rb].totalconfs += fcount;
+					// cout << "fcount 3 "<< fcount << endl;
 					if(!(rday == rday2 && rb2 == rb && rts == rts2)){
 						fcount = ConflictCount(conflicts,temppob[i].horario[rday2][rb2].charlas[rts2]);
 						// cout<< "indices " << rday << " "<< rday2 << " " << rb << " "<< rb2 << " "<<rts <<" "<<rts2 <<endl;
@@ -518,7 +556,33 @@ int main(int argc, char** argv){
 						temppob[i].conflictos += fcount;
 						temppob[i].horario[rday2][rb2].totalconfs+= fcount;
 					}
+					// cout << "fcount 4 "<< fcount << endl;
 					// cout<< "conflictos final : "<< temppob[i].conflictos << endl;
+					// if(temppob[i].conflictos <0){
+					// 	for (int l= 0; l<days;l++){
+					// 		std::cout << "Dia: "<<l << '\n';
+					// 		for(int j = 0 ; (unsigned)j<temppob[i].horario[l].size();j++){
+					// 			std::cout << "Bloque: "<<temppob[i].horario[l][j].start+1 <<"-"<<temppob[i].horario[l][j].finish+1 <<'\n';
+					// 			for(int k = 0; k<temppob[i].horario[l][j].bsize;k++){
+					// 				for(int s = 0; s<sessions ; s++){
+					// 					std::cout << temppob[i].horario[l][j].charlas[k][s]<<'\t';
+					// 				}
+					// 					std::cout << "|\n";
+					// 			}
+					// 			std::cout  << "------------------------------\n";
+					// 		}
+					// 	}
+					// }
+				}else if(mode == 2){
+					vector<int> temp ;
+					temp = temppob[i].horario[rday][rb].charlas[rts];
+					temppob[i].horario[rday][rb].charlas[rts] = temppob[i].horario[rday2][rb2].charlas[rts2];
+					temppob[i].horario[rday2][rb2].charlas[rts2] = temp;
+					if(!(rday == rday2 && rb2 == rb)){
+						temppob[i].hops -= temppob[i].horario[rday2][rb2].totaljumps;
+						BlockCount(poblacion[i].horario[rday2][rb2],people,sessions,preferences);
+						temppob[i].hops += temppob[i].horario[rday2][rb2].totaljumps;
+					}
 				}else{
 					next_permutation(temppob[i].horario[rday][rb].charlas[rts].begin(),temppob[i].horario[rday][rb].charlas[rts].end());
 				}

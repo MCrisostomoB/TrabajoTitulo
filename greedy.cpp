@@ -321,7 +321,7 @@ vector<vector<Bloque>> GreedySolution(vector<vector<int>> &horario,vector<vector
   return dbloques;
 }
 
-vector<vector<Bloque>> GreedySchedule(vector<vector<int>> &horario,vector<vector<int>> preferences,vector<vector<Bloque>> dbloques,int sessions,int people,int days,vector<RPAC> rpac,int pseed){
+vector<vector<Bloque>> GreedySchedule(vector<vector<int>> &horario,vector<vector<int>> preferences,vector<vector<Bloque>> dbloques,int sessions,int people,int days,vector<RPAC> rpac,int pseed, vector<vector<int>> conflicts){
 	for (int i = 0; i <days;i++){
 		for(int j = 0 ; (unsigned)j<dbloques[i].size();j++){
 			dbloques[i][j].totaljumps = 0;
@@ -341,7 +341,6 @@ vector<vector<Bloque>> GreedySchedule(vector<vector<int>> &horario,vector<vector
 	// 	}
 	// 	cout<<"|"<<endl;
 	// }
-	// cout<<"------"<<endl;
 	int pos = 0;
 	vector<vector<int>> unused;
 	for(int i = 0; i<days;i++){
@@ -398,6 +397,13 @@ vector<vector<Bloque>> GreedySchedule(vector<vector<int>> &horario,vector<vector
 			}
 		}
 	}
+	for(int i = 0; i<days;i++){
+		for(int j = 0 ;(unsigned)j<dbloques[i].size();j++){
+			dbloques[i][j].totalconfs = ConflictCountBlock(conflicts, dbloques[i][j].charlas);
+		}
+	}
+ 
+
 
 
 	// std::cout << "Horario Formado" << '\n';

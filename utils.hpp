@@ -70,3 +70,4 @@ int constcounter(vector<int> check, int n,int day,int bloque,int charla, vector<
 bool checkconst2v(int day,int bloque,vector<int> charla, vector<RPAC> rpac);
 int ConflictCounttotal(vector<vector<int>> conflicts, vector<vector<Bloque>> talks);
 int CompleteConstCount(Gen gen ,int sessions, vector<RPAC> rpac,vector<vector<int>> tcc );
+int ConflictCountBlock(vector<vector<int>> conflicts, vector<vector<int>> talks);
