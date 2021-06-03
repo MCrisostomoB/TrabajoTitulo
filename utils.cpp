@@ -205,10 +205,10 @@ int ConflictCount(vector<vector<int>> conflicts, vector<int> talks){
 }
 int ConflictCountBlock(vector<vector<int>> conflicts, vector<vector<int>> talks){
 	int total = 0 ;
-	for( int k = 0 ; k<talks.size();k++){
+	for(int k = 0 ; k<talks.size();k++){
 		for(int i = 0 ; (unsigned)i<talks[k].size();i++){
 			for(int j = i ; (unsigned)j<talks[k].size();j++){
-				if(talks[i] != talks[j]){
+				if(talks[k][i] != talks[k][j]){
 					// cout<<"COMB 1 : "<< conflicts[talks[i]][talks[j]] << " comb 2: "<<conflicts[talks[j]][talks[i]]<<endl;
 					total += conflicts[talks[k][i]][talks[k][j]];
 				}

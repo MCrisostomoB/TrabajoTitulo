@@ -155,6 +155,7 @@ int main(int argc, char** argv){
 		Gen ngen;
 		// cout<< i <<endl;
 		ngen.horario= GreedySchedule(horario,preferences,dbloques, sessions, people, days,rpac,pseed,conflicts);
+		// cout<< "gen : "<< i<<endl;
 		// for (i= 0; i<days;i++){
 		// 	cout << "Dia: "<<i << endl;
 		// 	for(int j = 0 ; (unsigned)j<ngen.horario[i].size();j++){
@@ -576,8 +577,16 @@ int main(int argc, char** argv){
 				}else if(mode == 2){
 					vector<int> temp ;
 					temp = temppob[i].horario[rday][rb].charlas[rts];
+					temppob[i].horario[rday][rb].totalconfs -= ConflictCount(conflicts,temppob[i].horario[rday][rb].charlas[rts]);
+					if(!(rday == rday2 && rb2 == rb && rts == rts2 )){
+						temppob[i].horario[rday2][rb2].totalconfs -= ConflictCount(conflicts,temppob[i].horario[rday2][rb2].charlas[rts2]);
+					}
 					temppob[i].horario[rday][rb].charlas[rts] = temppob[i].horario[rday2][rb2].charlas[rts2];
 					temppob[i].horario[rday2][rb2].charlas[rts2] = temp;
+					temppob[i].horario[rday][rb].totalconfs +=ConflictCount(conflicts,temppob[i].horario[rday][rb].charlas[rts]);
+					if(!(rday == rday2 && rb2 == rb && rts == rts2 )){
+						temppob[i].horario[rday2][rb2].totalconfs +=ConflictCount(conflicts,temppob[i].horario[rday2][rb2].charlas[rts2]);
+					}
 					if(!(rday == rday2 && rb2 == rb)){
 						temppob[i].hops -= temppob[i].horario[rday2][rb2].totaljumps;
 						BlockCount(poblacion[i].horario[rday2][rb2],people,sessions,preferences);
