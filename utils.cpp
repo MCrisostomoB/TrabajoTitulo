@@ -72,6 +72,7 @@ void BlockCount(Bloque &bloque , int people, int sessions, vector<vector<int>> p
 		mayor+=cont;
 
 	}
+	// cout << "contados: "<< mayor << endl;
 	bloque.totaljumps = mayor;
 }
 
@@ -325,3 +326,20 @@ int CompleteConstCount(Gen gen ,int sessions, vector<RPAC> rpac,vector<vector<in
 	}
 	return viol;
 }
+
+bool DBCheck::operator< (const DBCheck& db ) const{
+	if (d < db.d)
+    	return true;
+	else if (db.d < d)
+		return false;
+	else
+		return (b < db.b);
+}
+
+DBCheck::DBCheck(int x , int y ){
+	d = x;
+	b = y;
+}
+// pair<int, int> DBCheck::pair(){
+//     return pair<int, int>(d, b);
+// }

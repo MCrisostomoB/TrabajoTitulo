@@ -12,6 +12,7 @@
 #include <random>  
 #include <chrono>
 
+
 using namespace std;
 
 class Bloque{
@@ -31,6 +32,14 @@ class Missing{
 		int block;
 		int ts;
 		int s; 
+};
+class DBCheck{
+	public:
+		int d,b;
+		bool operator< (const DBCheck& db)const;
+		// pair<int, int> pair() const;
+		DBCheck(int x, int y);
+
 };
 
 class Gen{
