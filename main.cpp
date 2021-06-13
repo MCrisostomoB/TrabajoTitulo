@@ -3,12 +3,13 @@ using namespace std;
 #include "greedy.hpp"
 
 bool compareInterval(Gen g1, Gen g2){
-	return (g1.costo < g2.costo);
+
+	return 	(g1.violaciones < g2.violaciones) ||((g1.violaciones == g2.violaciones) && (g1.conflictos < g2.conflictos)) || ((g1.violaciones == g2.violaciones) && (g1.conflictos == g2.conflictos)&& (g1.hops < g2.hops));
 }
 
 
 int main(int argc, char** argv){
-	int sessions,people,talks,i,j,days,PAC,pob,elitism,totaltime,peso,mode,pseed;
+	int sessions,people,talks,i,j,days,PAC,pob,elitism,totaltime,peso,mode,pseed,cmode;
 	float chancemut;
 	float chancecruce;
 	Gen bestgen;
@@ -49,7 +50,6 @@ int main(int argc, char** argv){
 	vector<vector<int>> horario;
 	horario.resize(talks/sessions);
 	srand(pseed);
-
 	std::cout << "inicio" << '\n';
     j = 0;
 	while(j!= people){
@@ -178,10 +178,10 @@ int main(int argc, char** argv){
 		ngen.costo = ngen.conflictos + ngen.hops;
 		// cout<<"costo: "<<ngen.costo<<endl;
 		poblacion.push_back(ngen);
-		if(bestchild > ngen.costo){
-			bestgen = ngen;
-			bestchild = ngen.costo;
-		}
+		// if(bestchild > ngen.costo){
+		// 	bestgen = ngen;
+		// 	bestchild = ngen.costo;
+		// }
 	}
 	int infactibles = 0 ;
 	vector<int> lbloques;
@@ -203,6 +203,8 @@ int main(int argc, char** argv){
 	cout << "inicio Genetico"<< endl;
 	int gen = 1;
 	sort(poblacion.begin(),poblacion.end(),compareInterval);
+	bestgen = poblacion[0];
+	bestchild = poblacion[0].costo;
 	// cout<< "Viol elit: "<< poblacion[0].violaciones <<endl;
 	while(true){
 		vector<Gen> temppob;
@@ -472,7 +474,9 @@ int main(int argc, char** argv){
 		// }
 		// cout<< "Cantidad de hijos infactibles: "<< infactibles << endl;
 		// cout << "Mutacion"<<endl;
-
+		if (mode != 3){
+			cmode = mode;
+		}
 		for(int i = 0 ; i<pob ; i++){
 			// cout<< "Conteo de conflictos de un horario "<< ConflictCounttotal(conflicts, temppob[i].horario)<<endl;
 			// cout << "Horario Formado" << endl;
@@ -493,6 +497,16 @@ int main(int argc, char** argv){
 			// cout << "Total de saltos: "<< poblacion[0].costo << endl;
 			float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 			if( r < chancemut){
+				float rmode = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+				if(mode == 3){
+					if(rmode >= 0 &&rmode<=0.4 ){
+						cmode = 2;
+					}else if (rmode >= 0.4 &&rmode<=0.8 ){
+						cmode = 1;
+					}else{
+						cmode = 0;
+					}
+				}
 				// cout<< "mutando" << endl;
 				int rday = rand()%days;
 				// cout <<"rday: "<<rday<<endl;
@@ -508,7 +522,7 @@ int main(int argc, char** argv){
 				int rday2 = rand()%days;
 				int rb2 = rand()%temppob[i].horario[rday2].size();
 				int rts2 = rand()%temppob[i].horario[rday2][rb2].bsize;
-				if(mode == 1){
+				if(cmode == 1){
 					int rs1 = rand()%sessions;
 					int rs2 = rand()%sessions;
 					int tempch = temppob[i].horario[rday][rb].charlas[rts][rs1];
@@ -594,7 +608,7 @@ int main(int argc, char** argv){
 					// 		}
 					// 	}
 					// }
-				}else if(mode == 2){
+				}else if(cmode == 2){
 					vector<int> temp ;
 					temp = temppob[i].horario[rday][rb].charlas[rts];
 					temppob[i].horario[rday][rb].totalconfs -= ConflictCount(conflicts,temppob[i].horario[rday][rb].charlas[rts]);
@@ -636,7 +650,7 @@ int main(int argc, char** argv){
 			temppob[i].violaciones = CompleteConstCount(temppob[i],sessions, rpac,rtcc);
 			// cout<< "violaciones chequeadas "<< endl;
 			temppob[i].costo += temppob[i].violaciones * peso;
-			if(bestchild > temppob[i].costo ){
+			if(compareInterval(temppob[i],bestgen)){
 				bestgen = temppob[i];
 				bestchild = temppob[i].costo;
 				// cout<<"mejoro"<<endl;
@@ -645,6 +659,10 @@ int main(int argc, char** argv){
 		}
 		poblacion = temppob;
 		sort(poblacion.begin(),poblacion.end(),compareInterval);
+		// cout<< "orden"<<endl;
+		// for( int i = 0;i<pob;i++){
+		// 	cout<<poblacion[i].conflictos << " " <<poblacion[i].hops<<" "<<poblacion[i].violaciones<< endl;
+		// }
 		stop = chrono::high_resolution_clock::now();
 		duration = chrono::duration_cast<std::chrono::milliseconds>(stop - start);
 		// cout <<"El mejo resultado saltos + conflictos: " << bestchild <<" El mejor de la generacion actual: " << poblacion[0].costo<<" Tiempo[ms]: "<< duration.count()<<" promedio de infactibles: "<< infactibles/gen<<endl;
